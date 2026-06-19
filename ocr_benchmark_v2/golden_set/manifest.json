@@ -1,0 +1,106 @@
+{
+  "golden_set_id": "ocr_gujarati_scan_v1",
+  "version": "1.0.0",
+  "description": "6-page Gujarati scan OCR golden set (milk rate p1-4 + DOC p1-2)",
+  "page_count": 6,
+  "source": "amul-ocr-benchmark-v2",
+  "pages": [
+    {
+      "golden_id": "gs_001",
+      "doc_stem": "Sabar_850_Milk_Rate_Gujarat",
+      "pdf_name": "Sabar_850 Milk Rate Gujarat.pdf",
+      "pdf_path": "source_pdfs/Sabar_850 Milk Rate Gujarat.pdf",
+      "page": "page_001",
+      "page_index": 0,
+      "language": "gu",
+      "doc_type": "scanned_circular",
+      "tags": [
+        "milk_rate",
+        "header",
+        "intro_tables"
+      ],
+      "image_path": "ocr_benchmark_v2/golden_set/assets/images/Sabar_850_Milk_Rate_Gujarat/page_001.png",
+      "historical_reference_truncated": false
+    },
+    {
+      "golden_id": "gs_002",
+      "doc_stem": "Sabar_850_Milk_Rate_Gujarat",
+      "pdf_name": "Sabar_850 Milk Rate Gujarat.pdf",
+      "pdf_path": "source_pdfs/Sabar_850 Milk Rate Gujarat.pdf",
+      "page": "page_002",
+      "page_index": 1,
+      "language": "gu",
+      "doc_type": "scanned_circular",
+      "tags": [
+        "milk_rate",
+        "dense_table"
+      ],
+      "image_path": "ocr_benchmark_v2/golden_set/assets/images/Sabar_850_Milk_Rate_Gujarat/page_002.png",
+      "historical_reference_truncated": true
+    },
+    {
+      "golden_id": "gs_003",
+      "doc_stem": "Sabar_850_Milk_Rate_Gujarat",
+      "pdf_name": "Sabar_850 Milk Rate Gujarat.pdf",
+      "pdf_path": "source_pdfs/Sabar_850 Milk Rate Gujarat.pdf",
+      "page": "page_003",
+      "page_index": 2,
+      "language": "gu",
+      "doc_type": "scanned_circular",
+      "tags": [
+        "milk_rate",
+        "dense_table"
+      ],
+      "image_path": "ocr_benchmark_v2/golden_set/assets/images/Sabar_850_Milk_Rate_Gujarat/page_003.png",
+      "historical_reference_truncated": true
+    },
+    {
+      "golden_id": "gs_004",
+      "doc_stem": "Sabar_850_Milk_Rate_Gujarat",
+      "pdf_name": "Sabar_850 Milk Rate Gujarat.pdf",
+      "pdf_path": "source_pdfs/Sabar_850 Milk Rate Gujarat.pdf",
+      "page": "page_004",
+      "page_index": 3,
+      "language": "gu",
+      "doc_type": "scanned_circular",
+      "tags": [
+        "milk_rate",
+        "dense_table"
+      ],
+      "image_path": "ocr_benchmark_v2/golden_set/assets/images/Sabar_850_Milk_Rate_Gujarat/page_004.png",
+      "historical_reference_truncated": true
+    },
+    {
+      "golden_id": "gs_005",
+      "doc_stem": "DOC-20250210-WA0004",
+      "pdf_name": "DOC-20250210-WA0004.pdf",
+      "pdf_path": "source_pdfs/DOC-20250210-WA0004.pdf",
+      "page": "page_001",
+      "page_index": 0,
+      "language": "gu",
+      "doc_type": "whatsapp_scan",
+      "tags": [
+        "vet_products",
+        "multi_column"
+      ],
+      "image_path": "ocr_benchmark_v2/golden_set/assets/images/DOC-20250210-WA0004/page_001.png",
+      "historical_reference_truncated": false
+    },
+    {
+      "golden_id": "gs_006",
+      "doc_stem": "DOC-20250210-WA0004",
+      "pdf_name": "DOC-20250210-WA0004.pdf",
+      "pdf_path": "source_pdfs/DOC-20250210-WA0004.pdf",
+      "page": "page_002",
+      "page_index": 1,
+      "language": "gu",
+      "doc_type": "whatsapp_scan",
+      "tags": [
+        "vet_products",
+        "multi_column"
+      ],
+      "image_path": "ocr_benchmark_v2/golden_set/assets/images/DOC-20250210-WA0004/page_002.png",
+      "historical_reference_truncated": false
+    }
+  ]
+}

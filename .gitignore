@@ -1,0 +1,27 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Run outputs (keep sample scores if committed under runs/<id>/scores/)
+runs/*/outputs/
+runs/*/reference/
+runs/*/judge/
+runs/*/raw/
+runs/*/ledger.jsonl
+runs/*/config.snapshot.json
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Large model caches (local GPU)
+hf-cache/
+paddle-cache/

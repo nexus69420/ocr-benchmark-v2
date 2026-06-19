@@ -1,0 +1,38 @@
+# Metrics computed in Phase 4 (scorer)
+primary: anls
+
+page_wise:
+  - anls
+  - cer
+  - wer
+  - levenshtein_distance
+  - char_accuracy
+  - word_accuracy
+  - precision
+  - recall
+  - f1
+  - exact_match
+  - reference_length
+  - ocr_length
+  - length_ratio
+  - missing_char_count
+  - missing_word_count
+  - insertions
+  - deletions
+  - substitutions
+  - latency_sec
+  - input_tokens
+  - output_tokens
+  - output_empty
+  - output_truncated
+  - reference_truncated
+  - suspicious_output
+  - scoring_reliable
+
+aggregate:
+  - mean_anls
+  - median_anls
+  - mean_cer
+  - mean_wer
+  - pages_scored
+  - pages_scoring_reliable

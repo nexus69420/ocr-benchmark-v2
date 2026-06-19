@@ -1,0 +1,24 @@
+# API rate limits (per model)
+gemini-ocr:
+  min_interval_sec: 13
+  max_retries: 5
+  backoff_base_sec: 2
+  backoff_max_sec: 60
+
+mistral-ocr:
+  min_interval_sec: 1
+  max_retries: 5
+  backoff_base_sec: 2
+  backoff_max_sec: 30
+
+chandra-2:
+  min_interval_sec: 0
+  max_retries: 1
+
+qwen2.5-vl-7b:
+  min_interval_sec: 0
+  max_retries: 1
+
+paddleocr-vl:
+  min_interval_sec: 0
+  max_retries: 1

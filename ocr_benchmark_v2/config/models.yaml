@@ -1,0 +1,49 @@
+# OCR benchmark v2 — model registry
+reference_model: gemini-ocr
+
+models:
+  gemini-ocr:
+    display_name: Gemini 2.5 Flash OCR
+    runner_type: vlm_prompt
+    api_model_env: GEMINI_OCR_MODEL
+    default_api_model: gemini-2.5-flash
+    uses_shared_prompt: true
+    continuation_on_truncation: true
+    max_output_tokens: 16384
+    max_continuation_passes: 3
+    role: reference_and_candidate
+
+  mistral-ocr:
+    display_name: Mistral OCR API
+    runner_type: api_ocr
+    api_model_env: MISTRAL_OCR_MODEL
+    default_api_model: mistral-ocr-latest
+    uses_shared_prompt: false
+    strip_markdown: true
+    role: candidate
+
+  chandra-2:
+    display_name: Chandra OCR 2
+    runner_type: vlm_local
+    huggingface_id: datalab-to/chandra-ocr-2
+    max_output_tokens: 8192
+    uses_shared_prompt: true
+    role: candidate
+
+  qwen2.5-vl-7b:
+    display_name: Qwen2.5-VL-7B
+    runner_type: vlm_local
+    huggingface_id: Qwen/Qwen2.5-VL-7B-Instruct
+    max_new_tokens: 8192
+    uses_shared_prompt: true
+    role: candidate
+
+  paddleocr-vl:
+    display_name: PaddleOCR-VL-1.6
+    runner_type: paddle_vl
+    variant: PaddleOCR-VL-1.6
+    # transformers engine reuses HF cache on extended disk; avoids paddle/torch conflicts.
+    engine: transformers
+    strip_markdown: true
+    uses_shared_prompt: false
+    role: candidate
