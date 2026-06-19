@@ -440,7 +440,6 @@ Run `20260618T103056Z` (Amul pilot, June 2026):
 **Reports:**
 
 - `docs_FINAL_COMPARISON_REPORT.md` — full v1 vs v2 analysis
-- `docs_FOUNDER_HANDOFF.md` — executive summary + file index
 
 ---
 
