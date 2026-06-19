@@ -6,7 +6,6 @@ import csv
 import json
 import os
 import re
-import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +16,7 @@ from ..judge.gemini_judge_prompt import JUDGE_RESPONSE_SCHEMA, JUDGE_SYSTEM_PROM
 
 from .config_loader import candidate_model_ids
 from .dataset import load_pages
+from .llm_client import get_llm_client, judge_model_id, resolve_provider
 from .paths import REPO_ROOT
 from .run_context import RunContext
 
@@ -24,12 +24,7 @@ CANDIDATE_MODELS = candidate_model_ids()
 
 
 def get_client():
-    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        raise RuntimeError("Set GEMINI_API_KEY or GOOGLE_API_KEY in .env")
-    from google import genai
-
-    return genai.Client(api_key=api_key)
+    return get_llm_client()
 
 
 def compress_image(path: Path, max_side: int = 2048) -> tuple[bytes, str]:
@@ -69,26 +64,21 @@ def _validate_judgment(data: dict) -> dict:
     return data
 
 
-def run_judge_call(
+def _run_judge_google(
     client,
     judge_model: str,
     image_path: Path,
-    ocr_plain_text: str,
-    retries: int = 5,
+    user_block: str,
+    retries: int,
 ) -> tuple[dict, float, str]:
     from google.genai import types
 
-    compact_hint = (
-        "\n\nKeep each error array to at most 5 concise examples (max 80 characters each)."
-    )
-    user_block = (
-        f"{JUDGE_SYSTEM_PROMPT}\n\n"
-        "## OCR output to evaluate (plain text)\n\n"
-        f"{ocr_plain_text}"
-    )
     image_bytes, mime = compress_image(image_path)
     t0 = time.perf_counter()
     last_err: Exception | None = None
+    compact_hint = (
+        "\n\nKeep each error array to at most 5 concise examples (max 80 characters each)."
+    )
 
     for attempt in range(1, retries + 1):
         prompt = user_block + (compact_hint if attempt > 1 else "")
@@ -116,14 +106,93 @@ def run_judge_call(
             continue
         except Exception as e:
             last_err = e
-            msg = str(e).lower()
-            if any(t in msg for t in ("429", "503", "unavailable", "resource", "quota")):
+            if _is_retryable(e):
                 wait = min(60, 2**attempt)
                 print(f"    retry {attempt}/{retries} in {wait}s ({e})", flush=True)
                 time.sleep(wait)
                 continue
             raise
     raise last_err  # type: ignore[misc]
+
+
+def _run_judge_openrouter(
+    client,
+    judge_model: str,
+    image_path: Path,
+    user_block: str,
+    retries: int,
+) -> tuple[dict, float, str]:
+    import base64
+
+    image_bytes, mime = compress_image(image_path)
+    b64 = base64.b64encode(image_bytes).decode("ascii")
+    schema_hint = (
+        "\n\nRespond with JSON only matching this schema:\n"
+        f"{json.dumps(JUDGE_RESPONSE_SCHEMA, ensure_ascii=False)}"
+    )
+    t0 = time.perf_counter()
+    last_err: Exception | None = None
+
+    for attempt in range(1, retries + 1):
+        prompt = user_block + schema_hint
+        try:
+            response = client.chat.completions.create(
+                model=judge_model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:{mime};base64,{b64}"},
+                            },
+                        ],
+                    }
+                ],
+                temperature=0,
+                max_tokens=16384,
+                response_format={"type": "json_object"},
+            )
+            elapsed = time.perf_counter() - t0
+            raw = (response.choices[0].message.content or "").strip()
+            return _validate_judgment(parse_judgment_json(raw)), elapsed, raw
+        except (json.JSONDecodeError, ValueError) as e:
+            last_err = e
+            print(f"    json retry {attempt}/{retries} ({e})", flush=True)
+            time.sleep(min(30, 2**attempt))
+            continue
+        except Exception as e:
+            last_err = e
+            if _is_retryable(e):
+                wait = min(60, 2**attempt)
+                print(f"    retry {attempt}/{retries} in {wait}s ({e})", flush=True)
+                time.sleep(wait)
+                continue
+            raise
+    raise last_err  # type: ignore[misc]
+
+
+def _is_retryable(exc: Exception) -> bool:
+    msg = str(exc).lower()
+    return any(t in msg for t in ("429", "503", "unavailable", "resource", "quota", "rate"))
+
+
+def run_judge_call(
+    client,
+    judge_model: str,
+    image_path: Path,
+    ocr_plain_text: str,
+    retries: int = 5,
+) -> tuple[dict, float, str]:
+    user_block = (
+        f"{JUDGE_SYSTEM_PROMPT}\n\n"
+        "## OCR output to evaluate (plain text)\n\n"
+        f"{ocr_plain_text}"
+    )
+    if resolve_provider() == "openrouter":
+        return _run_judge_openrouter(client, judge_model, image_path, user_block, retries)
+    return _run_judge_google(client, judge_model, image_path, user_block, retries)
 
 
 def judgment_path(ctx: RunContext, golden_id: str, model: str) -> Path:
@@ -140,9 +209,11 @@ def run_judge(
 ) -> dict:
     load_dotenv(REPO_ROOT / ".env")
     models = models or CANDIDATE_MODELS
-    judge_model = judge_model or os.getenv("GEMINI_JUDGE_MODEL", "gemini-2.5-flash")
+    provider = resolve_provider()
+    judge_model = judge_model or judge_model_id(provider)
     client = get_client()
-    rpm_sleep = float(os.getenv("GEMINI_JUDGE_RPM_SLEEP", "13"))
+    rpm_sleep = float(os.getenv("GEMINI_JUDGE_RPM_SLEEP", "2" if provider == "openrouter" else "13"))
+    print(f"judge provider={provider} model={judge_model}", flush=True)
 
     completed = skipped = failed = 0
     pages = load_pages()
