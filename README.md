@@ -14,8 +14,8 @@ Reproducible Gujarati scan OCR benchmark: frozen 6-page golden set, multi-model 
 ## Quick start
 
 ```bash
-git clone https://github.com/nexus69420/amul-ocr-benchmark-v2.git
-cd amul-ocr-benchmark-v2
+git clone https://github.com/nexus69420/ocr-benchmark-v2.git
+cd ocr-benchmark-v2
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 # source .venv/bin/activate   # Linux
